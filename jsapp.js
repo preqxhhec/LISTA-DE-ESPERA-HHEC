@@ -514,11 +514,29 @@ async function proceedWithDelete(data) {
     }
 }
 
-// FIX ACCESIBILIDAD: Quitar foco antes de ocultar cualquier modal para evitar warning aria-hidden
-document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('hide.bs.modal', function () {
-        if (document.activeElement && modal.contains(document.activeElement)) {
-            document.activeElement.blur();
+// FIX ACCESIBILIDAD - versión más fuerte
+document.querySelectorAll('.modal').forEach(modalEl => {
+    modalEl.addEventListener('hide.bs.modal', function (event) {
+        // 1. Quitar foco inmediato del elemento activo si está dentro
+        const active = document.activeElement;
+        if (active && modalEl.contains(active)) {
+            active.blur();
         }
+
+        // 2. Forzar blur en elementos específicos (botones problemáticos)
+        const saveBtn = document.getElementById('save-edit-btn');
+        const confirmBtn = document.getElementById('confirm-password-btn');
+        if (saveBtn) saveBtn.blur();
+        if (confirmBtn) confirmBtn.blur();
+
+        // 3. Mover foco a body o al trigger (evita que quede "flotando")
+        document.body.focus();  // o al botón que abrió el modal si lo tienes
+    });
+
+    // Opcional: al mostrar, enfocar primer input
+    modalEl.addEventListener('shown.bs.modal', function () {
+        const firstInput = modalEl.querySelector('input, select, textarea, button');
+        if (firstInput) firstInput.focus();
     });
 });
+
