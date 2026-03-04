@@ -1,3 +1,4 @@
+
 // js/app.js
 let objectInfo = {}, table, refreshInterval;
 let currentFechaFilter = '', currentEspecialidadFilter = '', currentEstatusTablaFilter = '', currentFolioVacioFilter = false, currentSearchFilter = '', currentPage = 0;
@@ -5,7 +6,7 @@ let currentFechaFilter = '', currentEspecialidadFilter = '', currentEstatusTabla
 function normalizeDate(dateStr) {
     if (!dateStr) return '';
     const parts = dateStr.split('/');
-    if (parts.length!== 3) return dateStr;
+    if (parts.length !== 3) return dateStr;
     const day = parts[0].padStart(2, '0');
     const month = parts[1].padStart(2, '0');
     const year = parts[2];
@@ -16,46 +17,46 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
     if (currentFechaFilter) {
         const normalizedFilter = normalizeDate(currentFechaFilter);
         const normalizedData = normalizeDate(data[3]);
-        if (normalizedData!== normalizedFilter) return false;
+        if (normalizedData !== normalizedFilter) return false;
     }
     const estatusFilter = document.getElementById('filter-estatusTabla').value;
     const estatusTabla = data[1] || '';
     const folioVacioFilter = document.getElementById('filter-folio-vacio').checked;
     const folio = data[31] || '';
-    if (estatusFilter && estatusTabla!== estatusFilter) return false;
-    if (folioVacioFilter && folio!== '') return false;
+    if (estatusFilter && estatusTabla !== estatusFilter) return false;
+    if (folioVacioFilter && folio !== '') return false;
     return true;
 });
 
 function getFilterSummaryText() {
     const filters = [];
-    const totalFiltered = table? table.rows({ search: 'applied', filter: 'applied' }).count() : 0;
+    const totalFiltered = table ? table.rows({ search: 'applied', filter: 'applied' }).count() : 0;
     if (currentFechaFilter) filters.push(`Fecha: ${currentFechaFilter}`);
     if (currentEspecialidadFilter) filters.push(`Especialidad: ${currentEspecialidadFilter}`);
     if (currentEstatusTablaFilter) filters.push(`Estatus: ${currentEstatusTablaFilter}`);
     if (currentFolioVacioFilter) filters.push(`Solo sin folio`);
     if (currentSearchFilter) filters.push(`Búsqueda: "${currentSearchFilter}"`);
-    return filters.length === 0? `${totalFiltered} registros encontrados` : `Filtros aplicados: ${filters.join(' | ')}\n${totalFiltered} registros encontrados`;
+    return filters.length === 0 ? `${totalFiltered} registros encontrados` : `Filtros aplicados: ${filters.join(' | ')}\n${totalFiltered} registros encontrados`;
 }
 
 function updateFilterSummary() {
     const summaryDiv = document.getElementById('filter-summary');
     const filters = [];
-    const totalFiltered = table? table.rows({ search: 'applied', filter: 'applied' }).count() : 0;
+    const totalFiltered = table ? table.rows({ search: 'applied', filter: 'applied' }).count() : 0;
     if (currentFechaFilter) filters.push(`<span class="badge bg-primary">Fecha: ${currentFechaFilter}</span>`);
     if (currentEspecialidadFilter) filters.push(`<span class="badge bg-info">Especialidad: ${currentEspecialidadFilter}</span>`);
     if (currentEstatusTablaFilter) filters.push(`<span class="badge bg-success">Estatus: ${currentEstatusTablaFilter}</span>`);
     if (currentFolioVacioFilter) filters.push(`<span class="badge bg-warning">Solo sin folio</span>`);
     if (currentSearchFilter) filters.push(`<span class="badge bg-secondary">Búsqueda: "${currentSearchFilter}"</span>`);
     summaryDiv.innerHTML = filters.length === 0
-       ? `<strong>${totalFiltered} registros encontrados</strong>`
+        ? `<strong>${totalFiltered} registros encontrados</strong>`
         : `<div><strong>Filtros aplicados:</strong> ${filters.join(' ')}</div><div class="mt-1"><strong>${totalFiltered} registros encontrados</strong></div>`;
 }
 
 window.addEventListener("load", async () => {
     try {
         objectInfo = await fetchDataFromAppsScript();
-        await loadTable(objectInfo); // Cargar tabla y también las especialidades
+        await loadTable(objectInfo);
         startPolling();
     } catch (error) {
         console.error('Error al cargar datos iniciales:', error);
@@ -71,7 +72,7 @@ function startPolling() {
 async function refreshData() {
     try {
         const newData = await fetchDataFromAppsScript();
-        if (JSON.stringify(newData)!== JSON.stringify(objectInfo)) {
+        if (JSON.stringify(newData) !== JSON.stringify(objectInfo)) {
             objectInfo = newData;
             loadTable(objectInfo, currentPage);
         }
@@ -107,7 +108,6 @@ async function loadTable(object, page = 0) {
         });
     } catch (error) {
         console.error('Error al cargar especialidades:', error);
-        // Manejar el error, quizás mostrando un mensaje o un fallback
     }
 
     const estatusTablaOptions = ['PROGRAMABLE', 'PENDIENTE EPA', 'NO PROGRAMABLE', 'ACTUALIZAR', 'CARTA CERTIFICADA', 'OPERADO', 'EGRESO', 'TRASLADO INTERNO', 'RECHAZO', 'EXCEPTUADO', 'BOX'];
@@ -162,7 +162,7 @@ async function loadTable(object, page = 0) {
                                 }],
                                 margin: [0, 0, 0, 15]
                             },
-                           ...doc.content
+                            ...doc.content
                         ];
                         doc.styles.tableHeader = { bold: true, fontSize: 10, color: 'white', fillColor: '#007bff' };
                     }
@@ -231,7 +231,7 @@ async function loadTable(object, page = 0) {
                 }
             },
             { target: 5, className: 'rut' },
-            { target: 28, render: (data) => `<span class="${data === 'P1'? 'text-danger' : data === 'P2'? 'text-warning' : 'text-success'}">${data}</span>` },
+            { target: 28, render: (data) => `<span class="${data === 'P1' ? 'text-danger' : data === 'P2' ? 'text-warning' : 'text-success'}">${data}</span>` },
             { target: 29, className: 'observaciones' },
             { target: 30, className: 'observaciones' },
             { targets: 4, createdCell: function (td) { $(td).css({ 'white-space': 'nowrap', 'overflow': 'visible' }); } },
@@ -252,384 +252,273 @@ async function loadTable(object, page = 0) {
                 </div>`
             }
         ],
-        lengthMenu: [10, 20, 25, 30],
-        columns: formattedCols,
-        initComplete: function () {
-            $("#filter-fecha").datepicker({
-                dateFormat: "dd/mm/yy",
-                regional: "es",
-                changeMonth: true,
-                changeYear: true,
-                onSelect: (dateText) => { currentFechaFilter = dateText; table.draw(); updateFilterSummary(); }
-            }).on('change', function () {
-                if (!this.value) { currentFechaFilter = ''; table.draw(); updateFilterSummary(); }
-            });
-            $.datepicker.setDefaults($.datepicker.regional['es']);
-
-            setTimeout(() => {
-                const filterDiv = this.api().table().container().querySelector('div.dataTables_filter');
-                const controlsContainer = document.getElementById('controls-container');
-                const existingFilter = controlsContainer.querySelector('div.dataTables_filter');
-                if (existingFilter) existingFilter.remove();
-                if (filterDiv) {
-                    filterDiv.querySelector('label').childNodes[0].nodeValue = 'Buscar ';
-                    controlsContainer.appendChild(filterDiv);
-                    const searchInput = document.querySelector('div.dataTables_filter input');
-                    searchInput.addEventListener('keyup', function () {
-                        currentSearchFilter = this.value;
-                        updateFilterSummary();
-                    });
-                    if (currentSearchFilter) {
-                        searchInput.value = currentSearchFilter;
-                        this.api().search(currentSearchFilter).draw();
-                    }
-                }
-            }, 0);
-
-            document.getElementById('filter-especialidad').addEventListener('change', function () {
-                currentEspecialidadFilter = this.value;
-                table.column(14).search(currentEspecialidadFilter).draw();
-                updateFilterSummary();
-            });
-            document.getElementById('filter-estatusTabla').addEventListener('change', function () {
-                currentEstatusTablaFilter = this.value;
-                table.draw();
-                updateFilterSummary();
-            });
-            document.getElementById('filter-folio-vacio').addEventListener('change', function () {
-                currentFolioVacioFilter = this.checked;
-                table.draw();
-                updateFilterSummary();
-            });
-
-            document.getElementById('filter-fecha').value = currentFechaFilter;
-            document.getElementById('filter-especialidad').value = currentEspecialidadFilter;
-            document.getElementById('filter-estatusTabla').value = currentEstatusTablaFilter;
-            document.getElementById('filter-folio-vacio').checked = currentFolioVacioFilter;
-
-            table.clear().rows.add(object.usersInfo || []).draw();
-
-            if (currentSearchFilter) table.search(currentSearchFilter);
-            if (currentEspecialidadFilter) table.column(14).search(currentEspecialidadFilter);
-            if (currentFechaFilter || currentEstatusTablaFilter || currentFolioVacioFilter) table.draw();
-
-            const totalPages = table.page.info().pages;
-            const validPage = Math.min(page, totalPages - 1);
-            if (validPage >= 0) table.page(validPage).draw('page');
-
-            updateFilterSummary();
-            table.on('draw', updateFilterSummary);
-        }
+        lengthMenu: [10, 20, 25, 50, 100],
+        pageLength: 25,
+        data: object.usersInfo,
+        columns: formattedCols
     });
 
-    // === EVENTOS: EDITAR, IMPRIMIR, ELIMINAR ===
-    $('#usersTable tbody').off('click').on('click', '.edit-btn,.print-btn,.delete-btn', function (e) {
-        e.stopPropagation();
-        const $tr = $(this).closest('tr');
-        let row;
+    // Listener para botones de acción en cada fila
+    document.querySelector('#usersTable tbody').addEventListener('click', function (e) {
+        const btn = e.target.closest('button');
+        if (!btn) return;
 
-        if ($tr.hasClass('child')) {
-            row = table.row($tr.prev('tr.parent'));
-        } else {
-            row = table.row($tr);
-        }
-
+        const row = table.row(btn.closest('tr'));
         const data = row.data();
-        if (!data) return;
 
-        if ($(this).hasClass('edit-btn')) {
+        if (btn.classList.contains('edit-btn')) {
             showEditModal(data);
-        } else if ($(this).hasClass('print-btn')) {
-            printPatient(data);
-        } else if ($(this).hasClass('delete-btn')) {
-            const confirmDelete = confirm(
-                `ELIMINAR PACIENTE PERMANENTEMENTE\n\n` +
-                `Nombre: ${data[4]}\n` +
-                `RUT: ${data[5]}\n` +
-                `ID: ${data[0]}\n\n` +
-                `¿Estás completamente seguro?\nEsta acción NO se puede deshacer.`
-            );
-            if (confirmDelete) {
-                showDeletePasswordModal(data);
-            }
+        } else if (btn.classList.contains('print-btn')) {
+            // Lógica para imprimir ficha individual (puedes implementar aquí o usar el botón de print general)
+            alert('Función de impresión de ficha individual aún no implementada.');
+        } else if (btn.classList.contains('delete-btn')) {
+            showDeletePasswordModal(data);
         }
     });
 
-    // === IMPRIMIR FICHA ===
-    function printPatient(data) {
-        const printDate = new Date().toLocaleString('es-CL');
-        const summaryText = getFilterSummaryText();
+    // Actualizar resumen de filtros después de cargar
+    updateFilterSummary();
+    table.on('draw', updateFilterSummary);
+}
 
-        const printWindow = window.open('', '', 'width=900,height=700');
-        const htmlContent = ` <!DOCTYPE html> <html> <head> <meta charset="utf-8"> <title>Ficha Paciente - ${data[4] || 'Sin nombre'}</title> <style> body { font-family: Arial, sans-serif; margin: 30px; line-height: 1.6; }.header { text-align: center; border-bottom: 3px solid #007bff; padding-bottom: 15px; margin-bottom: 20px; }.header h1 { color: #007bff; margin: 0; font-size: 26pt; }.info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }.info div { background: #f8f9fa; padding: 12px; border-radius: 6px; }.info strong { color: #007bff; }.footer { margin-top: 30px; text-align: center; font-size: 10pt; color: #6c757d; } @media print { body { margin: 15mm; } } </style> </head> <body> <div class="header"> <h1>HOSPITAL DE ILLAPEL</h1> <p><strong>FICHA DE PACIENTE - LISTA DE ESPERA</strong></p> <p>Impreso: ${printDate}</p>
-    <p><strong>${summaryText}</strong></p> </div> <div class="info"> <div><strong>ID:</strong> ${data[0] || ''}</div> <div><strong>Estatus:</strong> <span style="color:${data[1] === 'PROGRAMABLE'? 'green' : data[1] === 'PENDIENTE EPA'? 'orange' : 'red'}">${data[1] || ''}</span></div> <div><strong>Nombre:</strong> ${data[4] || ''}</div> <div><strong>RUT:</strong> ${data[5] || ''}</div> <div><strong>Edad:</strong> ${data[7] || ''}</div> <div><strong>Comuna:</strong> ${data[10] || ''}</div> <div><strong>Especialidad:</strong> ${data[14] || ''}</div> <div><strong>Médico:</strong> ${data[15] || ''}</div> <div><strong>Diagnóstico:</strong> ${data[16] || ''}</div> <div><strong>Intervención:</strong> ${data[18] || ''}</div> <div><strong>Prioridad:</strong> <span style="color:${data[28] === 'P1'? 'red' : data[28] === 'P2'? 'orange' : 'green'}">${data[28] || ''}</span></div> <div><strong>Folio:</strong> ${data[31] || 'Sin folio'}</div> </div> <div style="margin-top:20px;"> <p><strong>Observaciones:</strong><br>${(data[29] || '').replace(/\n/g, '<br>') || 'Sin observaciones'}</p> <p><strong>Indicaciones Anestesiólogo:</strong><br>${(data[30] || '').replace(/\n/g, '<br>') || 'Sin indicaciones'}</p> </div> <div class="footer"> Generado desde Lista de Espera Integral Hospital de Illapel | ${new Date().toLocaleDateString('es-CL')} </div> </body> </html>`;
+// === MOSTRAR MODAL DE EDICIÓN ===
+function showEditModal(data) {
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('edit-form');
+    const editEstatusTablaSelect = document.getElementById('edit-estatusTabla');
 
-        printWindow.document.open();
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
+    // Limpiar y cargar opciones de estatus
+    editEstatusTablaSelect.innerHTML = '<option value="">Seleccione</option>';
+    const estatusTablaOptions = ['PROGRAMABLE', 'PENDIENTE EPA', 'NO PROGRAMABLE', 'ACTUALIZAR', 'CARTA CERTIFICADA', 'OPERADO', 'EGRESO', 'TRASLADO INTERNO', 'RECHAZO', 'EXCEPTUADO', 'BOX'];
+    estatusTablaOptions.forEach(estatus => {
+        const option = document.createElement('option');
+        option.value = estatus;
+        option.textContent = estatus;
+        editEstatusTablaSelect.appendChild(option);
+    });
 
-        printWindow.onload = function () {
-            printWindow.focus();
-            printWindow.print();
-            setTimeout(() => printWindow.close(), 500);
-        };
-    }
+    // Llenar campos del modal
+    document.getElementById('edit-id').value = data[0] || '';
+    document.getElementById('edit-estatusTabla').value = data[1] || '';
+    document.getElementById('edit-tEspera').value = data[2] || '';
+    document.getElementById('edit-fechaIndQx').value = data[3] || '';
+    document.getElementById('edit-nombreYApellido').value = data[4] || '';
+    document.getElementById('edit-rut').value = data[5] || '';
+    document.getElementById('edit-fechaNac').value = data[6] || '';
+    document.getElementById('edit-edad').value = data[7] || '';
+    document.getElementById('edit-patologiasCronicas').value = data[8] || '';
+    document.getElementById('edit-medicamentosCronicos').value = data[9] || '';
+    document.getElementById('edit-comuna').value = data[10] || '';
+    document.getElementById('edit-direccion').value = data[11] || '';
+    document.getElementById('edit-nContacto').value = data[12] || '';
+    document.getElementById('edit-email').value = data[13] || '';
+    document.getElementById('edit-especialidad').value = data[14] || '';
+    document.getElementById('edit-medicoTratante').value = data[15] || '';
+    document.getElementById('edit-diagnostico').value = data[16] || '';
+    document.getElementById('edit-lateralidad').value = data[17] || '';
+    document.getElementById('edit-intervencion').value = data[18] || '';
+    document.getElementById('edit-estatusEpa').value = data[19] || '';
+    document.getElementById('edit-anestesiologo').value = data[20] || '';
+    document.getElementById('edit-fechaEpa').value = data[21] || '';
+    document.getElementById('edit-ges').value = data[22] || '';
+    document.getElementById('edit-taco').value = data[23] || '';
+    document.getElementById('edit-asa').value = data[24] || '';
+    document.getElementById('edit-ekg').value = data[25] || '';
+    document.getElementById('edit-rx').value = data[26] || '';
+    document.getElementById('edit-eco').value = data[27] || '';
+    document.getElementById('edit-prioridad').value = data[28] || '';
+    document.getElementById('edit-observaciones').value = data[29] || '';
+    document.getElementById('edit-indicacionesAnestesiologo').value = data[30] || '';
+    document.getElementById('edit-folio').value = data[31] || '';
+    document.getElementById('edit-fechaEstatusProgram').value = data[32] || '';
+    document.getElementById('edit-esperaProgram').value = data[33] || '';
+    document.getElementById('edit-fechaCirugia').value = data[34] || '';
+    document.getElementById('edit-registro').value = data[35] || '';
 
-    // === MODAL EDITAR ===
-    function showEditModal(data) {
-        const editModal = document.getElementById('editModal');
-        const editForm = document.getElementById('edit-form');
-        const estatusTablaOptions = ['PROGRAMABLE', 'PENDIENTE EPA', 'NO PROGRAMABLE', 'ACTUALIZAR', 'CARTA CERTIFICADA', 'OPERADO', 'EGRESO', 'TRASLADO INTERNO', 'RECHAZO', 'EXCEPTUADO', 'BOX'];
-        const editEstatusTablaSelect = document.getElementById('edit-estatusTabla');
-        editEstatusTablaSelect.innerHTML = '<option value=""></option>';
-        estatusTablaOptions.forEach(estatus => {
-            const option = document.createElement('option');
-            option.value = estatus;
-            option.textContent = estatus;
-            editEstatusTablaSelect.appendChild(option);
-        });
+    editForm.dataset.rowIndex = data[36];
 
-        document.getElementById('edit-id').value = data[0] || '';
-        document.getElementById('edit-estatusTabla').value = data[1] || '';
-        document.getElementById('edit-tEspera').value = data[2] || '';
-        document.getElementById('edit-fechaIndQx').value = data[3] || '';
-        document.getElementById('edit-nombreYApellido').value = data[4] || '';
-        document.getElementById('edit-rut').value = data[5] || '';
-        document.getElementById('edit-fechaNac').value = data[6] || '';
-        document.getElementById('edit-edad').value = data[7] || '';
-        document.getElementById('edit-patologiasCronicas').value = data[8] || '';
-        document.getElementById('edit-medicamentosCronicos').value = data[9] || '';
-        document.getElementById('edit-comuna').value = data[10] || '';
-        document.getElementById('edit-direccion').value = data[11] || '';
-        document.getElementById('edit-nContacto').value = data[12] || '';
-        document.getElementById('edit-email').value = data[13] || '';
-        document.getElementById('edit-especialidad').value = data[14] || '';
-        document.getElementById('edit-medicoTratante').value = data[15] || '';
-        document.getElementById('edit-diagnostico').value = data[16] || '';
-        document.getElementById('edit-lateralidad').value = data[17] || '';
-        document.getElementById('edit-intervencion').value = data[18] || '';
-        document.getElementById('edit-estatusEpa').value = data[19] || '';
-        document.getElementById('edit-anestesiologo').value = data[20] || '';
-        document.getElementById('edit-fechaEpa').value = data[21] || '';
-        document.getElementById('edit-ges').value = data[22] || '';
-        document.getElementById('edit-taco').value = data[23] || '';
-        document.getElementById('edit-asa').value = data[24] || '';
-        document.getElementById('edit-ekg').value = data[25] || '';
-        document.getElementById('edit-rx').value = data[26] || '';
-        document.getElementById('edit-eco').value = data[27] || '';
-        document.getElementById('edit-prioridad').value = data[28] || '';
-        document.getElementById('edit-observaciones').value = data[29] || '';
-        document.getElementById('edit-indicacionesAnestesiologo').value = data[30] || '';
-        document.getElementById('edit-folio').value = data[31] || '';
-        document.getElementById('edit-fechaEstatusProgram').value = data[32] || '';
-        document.getElementById('edit-esperaProgram').value = data[33] || '';
-        document.getElementById('edit-fechaCirugia').value = data[34] || '';
-        document.getElementById('edit-registro').value = data[35] || '';
+    const modal = new bootstrap.Modal(editModal);
+    modal.show();
+}
 
-        editForm.dataset.rowIndex = data[36];
+// === GUARDAR EDICIÓN ===
+document.getElementById('save-edit-btn').addEventListener('click', () => {
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('edit-form');
 
-        const modal = new bootstrap.Modal(editModal);
-        modal.show();
-    }
-
-    // === GUARDAR EDICIÓN ===
-    document.getElementById('save-edit-btn').addEventListener('click', () => {
-        const editModal = document.getElementById('editModal');
-        const editForm = document.getElementById('edit-form');
-
-        const requiredFields = [
-            'edit-id', 'edit-estatusTabla', 'edit-fechaIndQx', 'edit-nombreYApellido',
-            'edit-rut', 'edit-fechaNac', 'edit-comuna', 'edit-especialidad',
-            'edit-medicoTratante', 'edit-diagnostico', 'edit-intervencion'
-        ];
-        let isValid = true;
-        requiredFields.forEach(id => {
-            const field = document.getElementById(id);
-            if (!field.value.trim()) {
-                isValid = false;
-                field.classList.add('is-invalid');
-            } else {
-                field.classList.remove('is-invalid');
-            }
-        });
-        if (!isValid) {
-            alert('Por favor, completa todos los campos obligatorios.');
-            return;
+    const requiredFields = [
+        'edit-id', 'edit-estatusTabla', 'edit-fechaIndQx', 'edit-nombreYApellido',
+        'edit-rut', 'edit-fechaNac', 'edit-comuna', 'edit-especialidad',
+        'edit-medicoTratante', 'edit-diagnostico', 'edit-intervencion'
+    ];
+    let isValid = true;
+    requiredFields.forEach(id => {
+        const field = document.getElementById(id);
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('is-invalid');
+        } else {
+            field.classList.remove('is-invalid');
         }
+    });
+    if (!isValid) {
+        alert('Por favor, completa todos los campos obligatorios.');
+        return;
+    }
 
-        const editModalInstance = bootstrap.Modal.getInstance(editModal);
-        editModalInstance.hide();
+    const editModalInstance = bootstrap.Modal.getInstance(editModal);
+    editModalInstance.hide();
 
-        const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
-        const passwordInput = document.getElementById('password-input');
-        const passwordError = document.getElementById('password-error');
-        const confirmBtn = document.getElementById('confirm-password-btn');
+    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+    const passwordInput = document.getElementById('password-input');
+    const passwordError = document.getElementById('password-error');
+    const confirmBtn = document.getElementById('confirm-password-btn');
 
-        passwordInput.value = '';
-        passwordError.style.display = 'none';
-        passwordInput.classList.remove('is-invalid');
-        passwordModal.show();
+    passwordInput.value = '';
+    passwordError.style.display = 'none';
+    passwordInput.classList.remove('is-invalid');
+    passwordModal.show();
 
-        const newConfirmBtn = confirmBtn.cloneNode(true);
-        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
-        newConfirmBtn.addEventListener('click', function handleConfirm() {
-            const enteredPassword = passwordInput.value.trim();
-            // Si la contraseña es vacía, asumimos que no se requiere. Adapta esto según tu lógica de seguridad.
-            // En tu código original, un password vacío en el modal de edición simplemente procedía.
-            // Para la eliminación, se requería 'Pqx1234'. Aquí mantengo la lógica de tu código original.
-            if (enteredPassword === '') {
-                passwordModal.hide();
-                proceedWithSave();
-            } else { // Si se ingresó algo, pero no es la correcta para eliminar (que no es este caso), sería un error.
-                // Como este botón es para guardar, y el original permitía vacío,
-                // si se ingresa algo aquí, simplemente lo ignoramos si no es para validación estricta de guardado.
-                // Si quieres exigir contraseña para guardar, aquí va la verificación.
-                // Por ahora, sigo la lógica de tu script original donde el modal de contraseña para 'guardar'
-                // solo se muestra si el input de contraseña para 'guardar' NO está vacío,
-                // y si está vacío, procede sin validación de contraseña.
-                // Si realmente quieres una contraseña para guardar, deberías validarla aquí.
-                // Por simplicidad, si el campo no está vacío, lo marco como inválido,
-                // ya que la lógica original solo permitía vacío para guardar.
-                passwordInput.classList.add('is-invalid');
-                passwordError.style.display = 'block';
-            }
-        });
-
-        passwordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                newConfirmBtn.click();
-            }
-        });
-
-        async function proceedWithSave() {
-            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-            loadingModal.show();
-
-            const dataToSave = {
-                // rowIndex: editForm.dataset.rowIndex, // Ya no se usa directamente en el backend con la API
-                id: document.getElementById('edit-id').value,
-                estatusTabla: document.getElementById('edit-estatusTabla').value,
-                tEspera: document.getElementById('edit-tEspera').value, // Aunque disabled, si lo capturas aquí, se enviará
-                fechaIndQx: document.getElementById('edit-fechaIndQx').value,
-                nombreYApellido: document.getElementById('edit-nombreYApellido').value,
-                rut: document.getElementById('edit-rut').value,
-                fechaNac: document.getElementById('edit-fechaNac').value,
-                edad: document.getElementById('edit-edad').value, // Aunque disabled
-                patologiasCronicas: document.getElementById('edit-patologiasCronicas').value,
-                medicamentosCronicos: document.getElementById('edit-medicamentosCronicos').value,
-                comuna: document.getElementById('edit-comuna').value,
-                direccion: document.getElementById('edit-direccion').value,
-                nContacto: document.getElementById('edit-nContacto').value,
-                email: document.getElementById('edit-email').value,
-                especialidad: document.getElementById('edit-especialidad').value,
-                medicoTratante: document.getElementById('edit-medicoTratante').value,
-                diagnostico: document.getElementById('edit-diagnostico').value,
-                lateralidad: document.getElementById('edit-lateralidad').value,
-                intervencion: document.getElementById('edit-intervencion').value,
-                estatusEpa: document.getElementById('edit-estatusEpa').value,
-                anestesiologo: document.getElementById('edit-anestesiologo').value,
-                fechaEpa: document.getElementById('edit-fechaEpa').value,
-                ges: document.getElementById('edit-ges').value,
-                taco: document.getElementById('edit-taco').value,
-                asa: document.getElementById('edit-asa').value,
-                ekg: document.getElementById('edit-ekg').value,
-                rx: document.getElementById('edit-rx').value,
-                eco: document.getElementById('edit-eco').value,
-                prioridad: document.getElementById('edit-prioridad').value,
-                observaciones: document.getElementById('edit-observaciones').value,
-                indicacionesAnestesiologo: document.getElementById('edit-indicacionesAnestesiologo').value,
-                folio: document.getElementById('edit-folio').value,
-                fechaEstatusProgram: document.getElementById('edit-fechaEstatusProgram').value,
-                esperaProgram: document.getElementById('edit-esperaProgram').value, // Aunque disabled
-                fechaCirugia: document.getElementById('edit-fechaCirugia').value,
-                registro: document.getElementById('edit-registro').value
-            };
-
-            try {
-                const response = await saveEditToAppsScript(dataToSave);
-                loadingModal.hide();
-                if (response && response.success) {
-                    alert('Cambios guardados exitosamente!');
-                    refreshData();
-                } else {
-                    alert('Error al guardar: ' + (response?.error || 'Desconocido'));
-                }
-            } catch (error) {
-                loadingModal.hide();
-                alert('Error de conexión: ' + error.message);
-            }
+    newConfirmBtn.addEventListener('click', function handleConfirm() {
+        const enteredPassword = passwordInput.value.trim();
+        if (enteredPassword === '') {
+            passwordModal.hide();
+            proceedWithSave();
+        } else {
+            passwordInput.classList.add('is-invalid');
+            passwordError.style.display = 'block';
         }
     });
 
-    // === ELIMINAR PERMANENTEMENTE ===
-    function showDeletePasswordModal(data) {
-        const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
-        const passwordInput = document.getElementById('password-input');
-        const passwordError = document.getElementById('password-error');
-        const modalTitle = document.getElementById('passwordModalLabel');
-        const confirmBtn = document.getElementById('confirm-password-btn');
+    passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            newConfirmBtn.click();
+        }
+    });
 
-        modalTitle.textContent = "ELIMINAR PACIENTE - CONFIRMACIÓN";
-        passwordInput.value = '';
-        passwordError.style.display = 'none';
-        passwordInput.classList.remove('is-invalid');
-
-        const newConfirmBtn = confirmBtn.cloneNode(true);
-        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-
-        newConfirmBtn.addEventListener('click', async function handleConfirm() {
-            if (passwordInput.value.trim() === 'Pqx1234') {
-                passwordModal.hide();
-                await proceedWithDelete(data);
-            } else {
-                passwordInput.classList.add('is-invalid');
-                passwordError.style.display = 'block';
-            }
-        });
-
-        passwordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                newConfirmBtn.click();
-            }
-        });
-
-        passwordModal.show();
-    }
-
-    async function proceedWithDelete(data) {
+    async function proceedWithSave() {
         const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
         loadingModal.show();
 
+        const dataToSave = {
+            id: document.getElementById('edit-id').value,
+            estatusTabla: document.getElementById('edit-estatusTabla').value,
+            tEspera: document.getElementById('edit-tEspera').value,
+            fechaIndQx: document.getElementById('edit-fechaIndQx').value,
+            nombreYApellido: document.getElementById('edit-nombreYApellido').value,
+            rut: document.getElementById('edit-rut').value,
+            fechaNac: document.getElementById('edit-fechaNac').value,
+            edad: document.getElementById('edit-edad').value,
+            patologiasCronicas: document.getElementById('edit-patologiasCronicas').value,
+            medicamentosCronicos: document.getElementById('edit-medicamentosCronicos').value,
+            comuna: document.getElementById('edit-comuna').value,
+            direccion: document.getElementById('edit-direccion').value,
+            nContacto: document.getElementById('edit-nContacto').value,
+            email: document.getElementById('edit-email').value,
+            especialidad: document.getElementById('edit-especialidad').value,
+            medicoTratante: document.getElementById('edit-medicoTratante').value,
+            diagnostico: document.getElementById('edit-diagnostico').value,
+            lateralidad: document.getElementById('edit-lateralidad').value,
+            intervencion: document.getElementById('edit-intervencion').value,
+            estatusEpa: document.getElementById('edit-estatusEpa').value,
+            anestesiologo: document.getElementById('edit-anestesiologo').value,
+            fechaEpa: document.getElementById('edit-fechaEpa').value,
+            ges: document.getElementById('edit-ges').value,
+            taco: document.getElementById('edit-taco').value,
+            asa: document.getElementById('edit-asa').value,
+            ekg: document.getElementById('edit-ekg').value,
+            rx: document.getElementById('edit-rx').value,
+            eco: document.getElementById('edit-eco').value,
+            prioridad: document.getElementById('edit-prioridad').value,
+            observaciones: document.getElementById('edit-observaciones').value,
+            indicacionesAnestesiologo: document.getElementById('edit-indicacionesAnestesiologo').value,
+            folio: document.getElementById('edit-folio').value,
+            fechaEstatusProgram: document.getElementById('edit-fechaEstatusProgram').value,
+            esperaProgram: document.getElementById('edit-esperaProgram').value,
+            fechaCirugia: document.getElementById('edit-fechaCirugia').value,
+            registro: document.getElementById('edit-registro').value
+        };
+
         try {
-            const response = await deleteRowFromAppsScript(data[0]); // data[0] es el ID
+            const response = await saveEditToAppsScript(dataToSave);
             loadingModal.hide();
             if (response && response.success) {
-                alert('Paciente eliminado permanentemente.');
+                alert('Cambios guardados exitosamente!');
                 refreshData();
             } else {
-                alert('Error al eliminar: ' + (response?.error || 'Desconocido'));
+                alert('Error al guardar: ' + (response?.error || 'Desconocido'));
             }
         } catch (error) {
             loadingModal.hide();
             alert('Error de conexión: ' + error.message);
         }
     }
-}
-// === CORREGIR ARIA-HIDDEN EN MODAL DE CONTRASEÑA ===
-const passwordModalEl = document.getElementById('passwordModal');
-
-passwordModalEl.addEventListener('shown.bs.modal', function () {
-    // Cuando el modal se muestra: quitar aria-hidden
-    passwordModalEl.setAttribute('aria-hidden', 'false');
-
-    // Opcional: enfocar el input de contraseña
-    document.getElementById('password-input').focus();
 });
 
-passwordModalEl.addEventListener('hidden.bs.modal', function () {
-    // Cuando se cierra: restaurar aria-hidden
-    passwordModalEl.setAttribute('aria-hidden', 'true');
+// === ELIMINAR PERMANENTEMENTE ===
+function showDeletePasswordModal(data) {
+    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+    const passwordInput = document.getElementById('password-input');
+    const passwordError = document.getElementById('password-error');
+    const modalTitle = document.getElementById('passwordModalLabel');
+    const confirmBtn = document.getElementById('confirm-password-btn');
+
+    modalTitle.textContent = "ELIMINAR PACIENTE - CONFIRMACIÓN";
+    passwordInput.value = '';
+    passwordError.style.display = 'none';
+    passwordInput.classList.remove('is-invalid');
+
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+    newConfirmBtn.addEventListener('click', async function handleConfirm() {
+        if (passwordInput.value.trim() === 'Pqx1234') {
+            passwordModal.hide();
+            await proceedWithDelete(data);
+        } else {
+            passwordInput.classList.add('is-invalid');
+            passwordError.style.display = 'block';
+        }
+    });
+
+    passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            newConfirmBtn.click();
+        }
+    });
+
+    passwordModal.show();
+}
+
+async function proceedWithDelete(data) {
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
+
+    try {
+        const response = await deleteRowFromAppsScript(data[0]);
+        loadingModal.hide();
+        if (response && response.success) {
+            alert('Paciente eliminado permanentemente.');
+            refreshData();
+        } else {
+            alert('Error al eliminar: ' + (response?.error || 'Desconocido'));
+        }
+    } catch (error) {
+        loadingModal.hide();
+        alert('Error de conexión: ' + error.message);
+    }
+}
+
+// FIX ACCESIBILIDAD: Quitar foco antes de ocultar cualquier modal para evitar warning aria-hidden
+document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('hide.bs.modal', function () {
+        if (document.activeElement && modal.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+    });
 });
