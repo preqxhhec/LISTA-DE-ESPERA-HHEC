@@ -1,0 +1,26 @@
+/* custom.css */
+.dataTables_wrapper { margin: 0 auto; max-width: 1350px; overflow-x: hidden; margin-top: 10px; }
+table.dataTable td.observaciones { white-space: normal; text-align: justify; overflow-wrap: break-word!important; }
+table.dataTable td.rut { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+table.dataTable thead th { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#controls-container { display: flex; gap: 15px; flex-wrap: nowrap; margin-bottom: 20px; align-items: center; }
+.filter-item { flex: 1; min-width: 150px; max-width: 250px; }
+div.dataTables_wrapper div.dataTables_filter { flex: 1; min-width: 150px; max-width: 250px; margin: 0; }
+div.dataTables_wrapper div.dataTables_filter input { width: 100%; }
+#folio-filter-container { margin: 0 auto; max-width: 1320px; text-align: left; }
+.ui-datepicker { max-height: 200px; overflow-y: auto; z-index: 1000; }
+#filter-summary { margin-top: 10px; font-size: 0.95em; color: #495057; padding: 8px 12px; background-color: #f8f9fa; border-radius: 6px; border-left: 4px solid #007bff; }
+#filter-summary.badge { font-size: 0.85em; margin-right: 5px; }
+/* Botones compactos con íconos (superiores y de acciones) */
+#usersTable.btn-group.btn-sm,
+.dt-buttons.btn-sm {
+  padding: 0.25rem 0.4rem;
+  font-size: 0.8rem;
+}
+#usersTable.btn-group.btn-sm i,
+.dt-buttons.btn-sm i {
+  font-size: 1.1rem;
+}
+.dt-buttons.btn-sm {
+  padding: 0.4rem 0.6rem;
+}
