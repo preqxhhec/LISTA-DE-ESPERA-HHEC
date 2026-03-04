@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <title>Lista de Espera Integral</title>
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css">
+    <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- Tus estilos personalizados irán aquí -->
+    <link type="text/css" rel="stylesheet" href="css/custom.css">
+</head>
+<body>
+    <main class="container mt-3">
+        <h2>LISTA DE ESPERA INTEGRAL HOSPITAL DE ILLAPEL</h2>
+        <div id="controls-container">
+            <div class="filter-item">
+                <label for="filter-fecha">Fecha Ind. Qx</label>
+                <input type="text" id="filter-fecha" class="form-control" placeholder="Selecciona una fecha...">
+            </div>
+            <div class="filter-item">
+                <label for="filter-especialidad">Especialidad</label>
+                <select id="filter-especialidad" class="form-control"><option value="">Todas</option></select>
+            </div>
+            <div class="filter-item">
+                <label for="filter-estatusTabla">Estatus Tabla</label>
+                <select id="filter-estatusTabla" class="form-control"><option value="">Todos</option></select>
+            </div>
+        </div>
+        <div id="filter-summary" class="mb-2"></div>
+        <table id="usersTable" class="table table-striped" style="width:100%">
+            <thead></thead>
+            <tbody id="table-body"></tbody>
+            <tfoot></tfoot>
+        </table>
+        <div id="folio-filter-container" class="mt-3">
+            <label for="filter-folio-vacio" class="form-label">Solo Folio Vacío</label>
+            <input type="checkbox" id="filter-folio-vacio" class="form-check-input">
+        </div>
+
+        <!-- Modal de edición -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Editar usuario</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="edit-form">
+                            <div class="mb-3"><label for="edit-id" class="form-label">ID</label><input type="text" class="form-control" id="edit-id" disabled></div>
+                            <div class="mb-3"><label for="edit-estatusTabla" class="form-label">Estatus tabla</label><select class="form-control" id="edit-estatusTabla"><option value=""></option></select></div>
+                            <div class="mb-3"><label for="edit-tEspera" class="form-label">T. espera</label><input type="text" class="form-control" id="edit-tEspera" disabled></div>
+                            <div class="mb-3"><label for="edit-fechaIndQx" class="form-label">Fecha ind Qx</label><input type="text" class="form-control" id="edit-fechaIndQx"></div>
+                            <div class="mb-3"><label for="edit-nombreYApellido" class="form-label">Nombre y apellido</label><input type="text" class="form-control" id="edit-nombreYApellido"></div>
+                            <div class="mb-3"><label for="edit-rut" class="form-label">RUT</label><input type="text" class="form-control" id="edit-rut"></div>
+                            <div class="mb-3"><label for="edit-fechaNac" class="form-label">Fecha nac.</label><input type="text" class="form-control" id="edit-fechaNac"></div>
+                            <div class="mb-3"><label for="edit-edad" class="form-label">Edad</label><input type="text" class="form-control" id="edit-edad" disabled></div>
+                            <div class="mb-3"><label for="edit-patologiasCronicas" class="form-label">Patologías crónicas</label><input type="text" class="form-control" id="edit-patologiasCronicas"></div>
+                            <div class="mb-3"><label for="edit-medicamentosCronicos" class="form-label">Medicamentos crónicos</label><input type="text" class="form-control" id="edit-medicamentosCronicos"></div>
+                            <div class="mb-3"><label for="edit-comuna" class="form-label">Comuna</label>
+                                <select class="form-control" id="edit-comuna">
+                                    <option value=""></option>
+                                    <option value="ILLAPEL">ILLAPEL</option>
+                                    <option value="SALAMANCA">SALAMANCA</option>
+                                    <option value="CANELA">CANELA</option>
+                                    <option value="LOS VILOS">LOS VILOS</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>
+                            </div>
+                            <div class="mb-3"><label for="edit-direccion" class="form-label">Dirección</label><input type="text" class="form-control" id="edit-direccion"></div>
+                            <div class="mb-3"><label for="edit-nContacto" class="form-label">N° contacto</label><input type="text" class="form-control" id="edit-nContacto"></div>
+                            <div class="mb-3"><label for="edit-email" class="form-label">E-mail</label><input type="text" class="form-control" id="edit-email"></div>
+                            <div class="mb-3"><label for="edit-especialidad" class="form-label">Especialidad</label>
+                                <select id="edit-especialidad" class="form-control">
+                                    <option value="">Seleccione una especialidad</option>
+                                    <option value="CIRUGIA GENERAL">CIRUGIA GENERAL</option>
+                                    <option value="CIRUGIA INFANTIL">CIRUGIA INFANTIL</option>
+                                    <option value="GINECOLOGIA">GINECOLOGIA</option>
+                                    <option value="MAXILOFACIAL">MAXILOFACIAL</option>
+                                    <option value="DENTAL">DENTAL</option>
+                                    <option value="ODONTOPEDIATRIA">ODONTOPEDIATRIA</option>
+                                    <option value="OFTALMOLOGIA">OFTALMOLOGIA</option>
+                                    <option value="ORL">ORL</option>
+                                    <option value="TRAUMATOLOGIA">TRAUMATOLOGIA</option>
+                                    <option value="UROLOGIA">UROLOGIA</option>
+                                </select>
+                            </div>
+                            <div class="mb-3"><label for="edit-medicoTratante" class="form-label">Médico tratante</label>
+                                <select class="form-control" id="edit-medicoTratante">
+                                    <option value=""></option>
+                                    <option value="DR. ANTONIO PAUSIN MUÑOZ">DR. ANTONIO PAUSIN MUÑOZ</option> <option value="DR. JUAN VAILATI LOPEZ">DR. JUAN VAILATI LOPEZ</option> <option value="DR. HENDER RINCON OLAVEZ">DR. HENDER RINCON OLAVEZ</option> <option value="DR. ALEXIS ORDAZ GONZALEZ">DR. ALEXIS ORDAZ GONZALEZ</option> <option value="DRA. FATIMA TINOCO HURTADO">DRA. FATIMA TINOCO HURTADO</option> <option value="DRA. LORENA ANGEL GALLARDO">DRA. LORENA ANGEL GALLARDO</option> <option value="DRA. MARIA JARA VALDIVIA">DRA. MARIA JARA VALDIVIA</option> <option value="DR. LUIS HERNANDEZ VARGAS">DR. LUIS HERNANDEZ VARGAS</option> <option value="DR. ORLANDO DAWAHRE ACEVEDO">DR. ORLANDO DAWAHRE ACEVEDO</option> <option value="DRA. MADELEIN MACHADO DELGADO">DRA. MADELEIN MACHADO DELGADO</option> <option value="DR. JESUS SAYEGLE CHAMI">DR. JESUS SAYEGLE CHAMI</option> <option value="DRA. DOUGMAI CAMACARO HERNANDEZ">DRA. DOUGMAI CAMACARO HERNANDEZ</option> <option value="DRA. NAIRIM SANDOVAL NAVEDA">DRA. NAIRIM SANDOVAL NAVEDA</option> <option value="DRA. MARIA SEQUERA LAMPER">DRA. MARIA SEQUERA LAMPER</option> <option value="DR. JAVIER VENEGAS RIQUELME">DR. JAVIER VENEGAS RIQUELME</option> <option value="DR. HECTOR REYES RODRIGUEZ">DR. HECTOR REYES RODRIGUEZ</option> <option value="DR. SEBASTIAN GUTIERREZ ZUÑIGA">DR. SEBASTIAN GUTIERREZ ZUÑIGA</option> <option value="DRA. LORENA SAAVEDRA BARRAZA">DRA. LORENA SAAVEDRA BARRAZA</option> <option value="DR. MIGUEL MOYA GONZALEZ">DR. MIGUEL MOYA GONZALEZ</option> <option value="DRA. JESSIE NEUMANN RUIZ">DRA. JESSIE NEUMANN RUIZ</option> <option value="DRA. ALIANY LEZAMA GUERRA">DRA. ALIANY LEZAMA GUERRA</option> <option value="DRA. AMANDA POBLETE REQUENA">DRA. AMANDA POBLETE REQUENA</option> <option value="DRA. CELSA PEREZ SCOTT">DRA. CELSA PEREZ SCOTT</option> <option value="DR. MIGUEL CARRILLO AGUIRRE">DR. MIGUEL CARRILLO AGUIRRE</option> <option value="DRA. MARIA DURAN MONASTERIO">DRA. MARIA DURAN MONASTERIO</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>
+                            </div>
+                            <div class="mb-3"><label for="edit-diagnostico" class="form-label">Diagnóstico (CIE10)</label><input type="text" class="form-control" id="edit-diagnostico"></div>
+                            <div class="mb-3"><label for="edit-lateralidad" class="form-label">Lateralidad</label>
+                                <select class="form-control" id="edit-lateralidad">
+                                    <option value=""></option><option value="DERECHA">DERECHA</option><option value="IZQUIERDA">IZQUIERDA</option>
+                                    <option value="BILATERAL">BILATERAL</option><option value="NO APLICA">NO APLICA</option>
+                                </select>
+                            </div>
+                            <div class="mb-3"><label for="edit-intervencion" class="form-label">Intervención</label><input type="text" class="form-control" id="edit-intervencion"></div>
+                            <div class="mb-3"><label for="edit-estatusEpa" class="form-label">Estatus EPA</label>
+                                <select class="form-control" id="edit-estatusEpa">
+                                    <option value=""></option><option value="PENDIENTE">PENDIENTE</option><option value="AGENDADO">AGENDADO</option>
+                                    <option value="REALIZADO">REALIZADO</option><option value="NO APLICA">NO APLICA</option>
+                                </select>
+                            </div>
+                            <div class="mb-3"><label for="edit-anestesiologo" class="form-label">Anestesiólogo</label>
+                                <select class="form-control" id="edit-anestesiologo">
+                                    <option value=""></option>
+                                    <option value="DR. DANILO NAVA">DR. DANILO NAVA</option>
+                                    <option value="DR. PEDRO GOLES">DR. PEDRO GOLES</option>
+                                    <option value="DRA. MARIANGEL YANES">DRA. MARIANGEL YANES</option>
+                                    <option value="DRA. RAQUEL VALERO">DRA. RAQUEL VALERO</option>
+                                    <option value="DRA. MARINELA RICCOBONO">DRA. MARINELA RICCOBONO</option>
+                                    <option value="DR. ROBERTO OROZCO">DR. ROBERTO OROZCO</option>
+                                    <option value="DR. DANIEL RIQUELME">DR. DANIEL RIQUELME</option>
+                                    <option value="DR. ANGEL MONTIEL">DR. ANGEL MONTIEL</option>
+                                </select>
+                            </div>
+                            <div class="mb-3"><label for="edit-fechaEpa" class="form-label">Fecha EPA</label><input type="text" class="form-control" id="edit-fechaEpa"></div>
+                            <div class="mb-3"><label for="edit-ges" class="form-label">GES</label><select class="form-control" id="edit-ges"><option value=""></option><option value="SI">SI</option><option value="NO">NO</option></select></div>
+                            <div class="mb-3"><label for="edit-taco" class="form-label">TACO</label><select class="form-control" id="edit-taco"><option value=""></option><option value="SI">SI</option><option value="NO">NO</option></select></div>
+                            <div class="mb-3"><label for="edit-asa" class="form-label">ASA</label><select class="form-control" id="edit-asa"><option value=""></option><option value="SI">SI</option><option value="NO">NO</option></select></div>
+                            <div class="mb-3"><label for="edit-ekg" class="form-label">EKG</label><select class="form-control" id="edit-ekg"><option value=""></option><option value="SI">SI</option><option value="NO">NO</option></select></div>
+                            <div class="mb-3"><label for="edit-rx" class="form-label">RX</label><select class="form-control" id="edit-rx"><option value=""></option><option value="SI">SI</option><option value="NO">NO</option></select></div>
+                            <div class="mb-3"><label for="edit-eco" class="form-label">ECO</label><select class="form-control" id="edit-eco"><option value=""></option><option value="SI">SI</option><option value="NO">NO</option></select></div>
+                            <div class="mb-3"><label for="edit-prioridad" class="form-label">Prioridad</label>
+                                <select class="form-control" id="edit-prioridad">
+                                    <option value=""></option><option value="P1">P1</option><option value="P2">P2</option><option value="P3">P3</option>
+                                </select>
+                            </div>
+                            <div class="mb-3"><label for="edit-observaciones" class="form-label">Observaciones</label><textarea class="form-control" id="edit-observaciones" rows="5"></textarea></div>
+                            <div class="mb-3"><label for="edit-indicacionesAnestesiologo" class="form-label">Indicaciones anestesiólogo</label><textarea class="form-control" id="edit-indicacionesAnestesiologo" rows="5"></textarea></div>
+                            <div class="mb-3"><label for="edit-folio" class="form-label">Folio</label><input type="text" class="form-control" id="edit-folio"></div>
+                            <div class="mb-3"><label for="edit-fechaEstatusProgram" class="form-label">Fecha (Estatus program)</label><input type="text" class="form-control" id="edit-fechaEstatusProgram"></div>
+                            <div class="mb-3"><label for="edit-esperaProgram" class="form-label">Espera en estatus PROGRAMABLE</label><input type="text" class="form-control" id="edit-esperaProgram" disabled></div>
+                            <div class="mb-3"><label for="edit-fechaCirugia" class="form-label">Fecha de cirugía</label><input type="text" class="form-control" id="edit-fechaCirugia"></div>
+                            <div class="mb-3"><label for="edit-registro" class="form-label">Registro</label>
+                                <select class="form-control" id="edit-registro">
+                                    <option value=""></option>
+                                    <option value="PAULA LEIVA">PAULA LEIVA</option>
+                                    <option value="EMIKER PALMI">EMIKER PALMI</option>
+                                    <option value="SANDRA GARMENDIA">SANDRA GARMENDIA</option>
+                                    <option value="MILEIDY MORALES">MILEIDY MORALES</option>
+                                    <option value="MAGALY MENESES">MAGALY MENESES</option>
+                                    <option value="JOCELYN CACERES">JOCELYN CACERES</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" id="save-edit-btn">Guardar cambios</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de carga -->
+        <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+                        <p class="mt-3">Espere mientras se actualiza la información</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Contraseña -->
+        <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="passwordModalLabel">Verificación de Seguridad</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="password-input" class="form-label">Ingrese la clave de autorización:</label>
+                            <input type="password" class="form-control" id="password-input" placeholder="Clave requerida">
+                            <div class="invalid-feedback" id="password-error" style="display:none;">Clave incorrecta. Intente nuevamente.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="confirm-password-btn">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts de librerías -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+
+    <!-- Tus scripts personalizados irán aquí -->
+    <script src="jsapi.js"></script> <!-- Script para manejar la comunicación con Apps Script -->
+    <script src="jsapp.js"></script> <!-- Tu lógica principal de la aplicación -->
+</body>
+</html>
