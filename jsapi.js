@@ -1,6 +1,6 @@
 // js/api.js
 //!!! REEMPLAZA ESTA URL CON LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT!!!
-const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx2x94hWLVFr6KA1hQ--POHQjtix5WO7wKPJUwkBM3hw76W8MTFmVE_lKdEEih1dwCTNA/exec';
+const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxck-zLSynZyRambB-2jCWWwQgV5VjdiVhZutsKNYP5qg3sxvSNHmYFqwGoPzdrjZO2mg/exec';
 
 async function fetchDataFromAppsScript() {
     try {
@@ -64,4 +64,5 @@ async function deleteRowFromAppsScript(id) {
         console.error('Error al eliminar fila en Apps Script:', error);
         throw error;
     }
+
 }
