@@ -94,7 +94,6 @@ async function loadTable(object, page = 0) {
         table.destroy();
     }
 
-    // Cargar especialidades dinámicamente para el filtro superior
     try {
         const especialidadesData = await fetchEspecialidadesFromAppsScript();
         const especialidades = especialidadesData.especialidades;
@@ -225,31 +224,41 @@ async function loadTable(object, page = 0) {
             { responsivePriority: 1, targets: 0 },
             { responsivePriority: 3, targets: [1, 2, 3, 4, 5, 6, 7] },
             {
-                target: 1, render: (data) => {
-                    const colors = { PROGRAMABLE: 'text-success', 'PENDIENTE EPA': 'text-warning', 'NO PROGRAMABLE': 'text-danger', ACTUALIZAR: 'text-muted', 'CARTA CERTIFICADA': 'text-light bg-dark' };
+                targets: 1,
+                render: (data) => {
+                    const colors = {
+                        PROGRAMABLE: 'text-success',
+                        'PENDIENTE EPA': 'text-warning',
+                        'NO PROGRAMABLE': 'text-danger',
+                        ACTUALIZAR: 'text-muted',
+                        'CARTA CERTIFICADA': 'text-light bg-dark'
+                    };
                     return `<span class="${colors[data] || 'text-dark'}">${data}</span>`;
                 }
             },
-            { target: 5, className: 'rut' },
-            { target: 28, render: (data) => `<span class="${data === 'P1' ? 'text-danger' : data === 'P2' ? 'text-warning' : 'text-success'}">${data}</span>` },
-            { target: 29, className: 'observaciones' },
-            { target: 30, className: 'observaciones' },
-            { targets: 4, createdCell: function (td) { $(td).css({ 'white-space': 'nowrap', 'overflow': 'visible' }); } },
-            { targets: 14, createdCell: function (td) { $(td).css({ 'white-space': 'nowrap', 'overflow': 'visible' }); } },
+            { targets: 5, className: 'rut' },
+            {
+                targets: 28,
+                render: (data) => `<span class="${data === 'P1' ? 'text-danger' : data === 'P2' ? 'text-warning' : 'text-success'}">${data}</span>`
+            },
+            { targets: 29, className: 'observaciones' },
+            { targets: 30, className: 'observaciones' },
+            {
+                targets: 4,
+                createdCell: function (td) { $(td).css({ 'white-space': 'nowrap', 'overflow': 'visible' }); }
+            },
+            {
+                targets: 14,
+                createdCell: function (td) { $(td).css({ 'white-space': 'nowrap', 'overflow': 'visible' }); }
+            },
             {
                 targets: 36,
-                render: (data, type, row) =>
+                render: () =>
                     `<div class="btn-group" role="group">
-                    <button class="btn btn-primary btn-sm edit-btn" title="Editar paciente">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-success btn-sm print-btn" title="Imprimir ficha">
-                        <i class="bi bi-printer"></i>
-                    </button>
-                    <button class="btn btn-danger btn-sm delete-btn" title="Eliminar permanentemente">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>`
+                        <button class="btn btn-primary btn-sm edit-btn" title="Editar paciente"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-success btn-sm print-btn" title="Imprimir ficha"><i class="bi bi-printer"></i></button>
+                        <button class="btn btn-danger btn-sm delete-btn" title="Eliminar permanentemente"><i class="bi bi-trash"></i></button>
+                    </div>`
             }
         ],
         lengthMenu: [10, 20, 25, 50, 100],
@@ -258,46 +267,38 @@ async function loadTable(object, page = 0) {
         columns: formattedCols
     });
 
-    // Listener para botones de acción en cada fila
+    // Listener para botones de acción en filas
     document.querySelector('#usersTable tbody').addEventListener('click', function (e) {
         const btn = e.target.closest('button');
         if (!btn) return;
 
-        const row = table.row(btn.closest('tr'));
+        const row = table.row(btn.closest('tr') || btn.closest('td'));
         const data = row.data();
 
         if (btn.classList.contains('edit-btn')) {
             showEditModal(data);
         } else if (btn.classList.contains('print-btn')) {
-            // Lógica para imprimir ficha individual (puedes implementar aquí o usar el botón de print general)
-            alert('Función de impresión de ficha individual aún no implementada.');
+            alert('Función de impresión de ficha individual no implementada aún.');
         } else if (btn.classList.contains('delete-btn')) {
             showDeletePasswordModal(data);
         }
     });
 
-    // Actualizar resumen de filtros después de cargar
-    updateFilterSummary();
     table.on('draw', updateFilterSummary);
+    updateFilterSummary();
 }
 
-// === MOSTRAR MODAL DE EDICIÓN ===
 function showEditModal(data) {
-    const editModal = document.getElementById('editModal');
-    const editForm = document.getElementById('edit-form');
     const editEstatusTablaSelect = document.getElementById('edit-estatusTabla');
-
-    // Limpiar y cargar opciones de estatus
     editEstatusTablaSelect.innerHTML = '<option value="">Seleccione</option>';
-    const estatusTablaOptions = ['PROGRAMABLE', 'PENDIENTE EPA', 'NO PROGRAMABLE', 'ACTUALIZAR', 'CARTA CERTIFICADA', 'OPERADO', 'EGRESO', 'TRASLADO INTERNO', 'RECHAZO', 'EXCEPTUADO', 'BOX'];
-    estatusTablaOptions.forEach(estatus => {
-        const option = document.createElement('option');
-        option.value = estatus;
-        option.textContent = estatus;
-        editEstatusTablaSelect.appendChild(option);
-    });
+    ['PROGRAMABLE', 'PENDIENTE EPA', 'NO PROGRAMABLE', 'ACTUALIZAR', 'CARTA CERTIFICADA', 'OPERADO', 'EGRESO', 'TRASLADO INTERNO', 'RECHAZO', 'EXCEPTUADO', 'BOX']
+        .forEach(estatus => {
+            const opt = document.createElement('option');
+            opt.value = estatus;
+            opt.textContent = estatus;
+            editEstatusTablaSelect.appendChild(opt);
+        });
 
-    // Llenar campos del modal
     document.getElementById('edit-id').value = data[0] || '';
     document.getElementById('edit-estatusTabla').value = data[1] || '';
     document.getElementById('edit-tEspera').value = data[2] || '';
@@ -335,22 +336,18 @@ function showEditModal(data) {
     document.getElementById('edit-fechaCirugia').value = data[34] || '';
     document.getElementById('edit-registro').value = data[35] || '';
 
-    editForm.dataset.rowIndex = data[36];
-
-    const modal = new bootstrap.Modal(editModal);
+    const modal = new bootstrap.Modal(document.getElementById('editModal'));
     modal.show();
 }
 
-// === GUARDAR EDICIÓN ===
+// GUARDAR EDICIÓN
 document.getElementById('save-edit-btn').addEventListener('click', () => {
-    const editModal = document.getElementById('editModal');
-    const editForm = document.getElementById('edit-form');
-
     const requiredFields = [
         'edit-id', 'edit-estatusTabla', 'edit-fechaIndQx', 'edit-nombreYApellido',
         'edit-rut', 'edit-fechaNac', 'edit-comuna', 'edit-especialidad',
         'edit-medicoTratante', 'edit-diagnostico', 'edit-intervencion'
     ];
+
     let isValid = true;
     requiredFields.forEach(id => {
         const field = document.getElementById(id);
@@ -361,11 +358,13 @@ document.getElementById('save-edit-btn').addEventListener('click', () => {
             field.classList.remove('is-invalid');
         }
     });
+
     if (!isValid) {
         alert('Por favor, completa todos los campos obligatorios.');
         return;
     }
 
+    const editModal = document.getElementById('editModal');
     const editModalInstance = bootstrap.Modal.getInstance(editModal);
     editModalInstance.hide();
 
@@ -399,67 +398,64 @@ document.getElementById('save-edit-btn').addEventListener('click', () => {
             newConfirmBtn.click();
         }
     });
-
-    async function proceedWithSave() {
-        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-        loadingModal.show();
-
-        const dataToSave = {
-            id: document.getElementById('edit-id').value,
-            estatusTabla: document.getElementById('edit-estatusTabla').value,
-            tEspera: document.getElementById('edit-tEspera').value,
-            fechaIndQx: document.getElementById('edit-fechaIndQx').value,
-            nombreYApellido: document.getElementById('edit-nombreYApellido').value,
-            rut: document.getElementById('edit-rut').value,
-            fechaNac: document.getElementById('edit-fechaNac').value,
-            edad: document.getElementById('edit-edad').value,
-            patologiasCronicas: document.getElementById('edit-patologiasCronicas').value,
-            medicamentosCronicos: document.getElementById('edit-medicamentosCronicos').value,
-            comuna: document.getElementById('edit-comuna').value,
-            direccion: document.getElementById('edit-direccion').value,
-            nContacto: document.getElementById('edit-nContacto').value,
-            email: document.getElementById('edit-email').value,
-            especialidad: document.getElementById('edit-especialidad').value,
-            medicoTratante: document.getElementById('edit-medicoTratante').value,
-            diagnostico: document.getElementById('edit-diagnostico').value,
-            lateralidad: document.getElementById('edit-lateralidad').value,
-            intervencion: document.getElementById('edit-intervencion').value,
-            estatusEpa: document.getElementById('edit-estatusEpa').value,
-            anestesiologo: document.getElementById('edit-anestesiologo').value,
-            fechaEpa: document.getElementById('edit-fechaEpa').value,
-            ges: document.getElementById('edit-ges').value,
-            taco: document.getElementById('edit-taco').value,
-            asa: document.getElementById('edit-asa').value,
-            ekg: document.getElementById('edit-ekg').value,
-            rx: document.getElementById('edit-rx').value,
-            eco: document.getElementById('edit-eco').value,
-            prioridad: document.getElementById('edit-prioridad').value,
-            observaciones: document.getElementById('edit-observaciones').value,
-            indicacionesAnestesiologo: document.getElementById('edit-indicacionesAnestesiologo').value,
-            folio: document.getElementById('edit-folio').value,
-            fechaEstatusProgram: document.getElementById('edit-fechaEstatusProgram').value,
-            esperaProgram: document.getElementById('edit-esperaProgram').value,
-            fechaCirugia: document.getElementById('edit-fechaCirugia').value,
-            registro: document.getElementById('edit-registro').value
-        };
-
-        try {
-            const response = await saveEditToAppsScript(dataToSave);
-            loadingModal.hide();
-            if (response && response.success) {
-                alert('Cambios guardados exitosamente!');
-                refreshData();
-            } else {
-                alert('Error al guardar: ' + (response?.error || 'Desconocido'));
-            }
-        } catch (error) {
-            loadingModal.hide();
-            alert('Error de conexión: ' + error.message);
-        }
-    }
 });
 
-// === ELIMINAR PERMANENTEMENTE ===
+async function proceedWithSave() {
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
+
+    const dataToSave = {
+        id: document.getElementById('edit-id').value,
+        estatusTabla: document.getElementById('edit-estatusTabla').value,
+        tEspera: document.getElementById('edit-tEspera').value,
+        fechaIndQx: document.getElementById('edit-fechaIndQx').value,
+        nombreYApellido: document.getElementById('edit-nombreYApellido').value,
+        rut: document.getElementById('edit-rut').value,
+        fechaNac: document.getElementById('edit-fechaNac').value,
+        edad: document.getElementById('edit-edad').value,
+        patologiasCronicas: document.getElementById('edit-patologiasCronicas').value,
+        medicamentosCronicos: document.getElementById('edit-medicamentosCronicos').value,
+        comuna: document.getElementById('edit-comuna').value,
+        direccion: document.getElementById('edit-direccion').value,
+        nContacto: document.getElementById('edit-nContacto').value,
+        email: document.getElementById('edit-email').value,
+        especialidad: document.getElementById('edit-especialidad').value,
+        medicoTratante: document.getElementById('edit-medicoTratante').value,
+        diagnostico: document.getElementById('edit-diagnostico').value,
+        lateralidad: document.getElementById('edit-lateralidad').value,
+        intervencion: document.getElementById('edit-intervencion').value,
+        estatusEpa: document.getElementById('edit-estatusEpa').value,
+        anestesiologo: document.getElementById('edit-anestesiologo').value,
+        fechaEpa: document.getElementById('edit-fechaEpa').value,
+        ges: document.getElementById('edit-ges').value,
+        taco: document.getElementById('edit-taco').value,
+        asa: document.getElementById('edit-asa').value,
+        ekg: document.getElementById('edit-ekg').value,
+        rx: document.getElementById('edit-rx').value,
+        eco: document.getElementById('edit-eco').value,
+        prioridad: document.getElementById('edit-prioridad').value,
+        observaciones: document.getElementById('edit-observaciones').value,
+        indicacionesAnestesiologo: document.getElementById('edit-indicacionesAnestesiologo').value,
+        folio: document.getElementById('edit-folio').value,
+        fechaEstatusProgram: document.getElementById('edit-fechaEstatusProgram').value,
+        esperaProgram: document.getElementById('edit-esperaProgram').value,
+        fechaCirugia: document.getElementById('edit-fechaCirugia').value,
+        registro: document.getElementById('edit-registro').value
+    };
+
+    try {
+        await saveEditToAppsScript(dataToSave);
+        loadingModal.hide();
+        alert('Cambios enviados exitosamente.\nVerifica en la hoja de cálculo si es necesario.');
+        refreshData();
+    } catch (error) {
+        loadingModal.hide();
+        console.error(error);
+        alert('Hubo un problema al enviar los cambios.\nRevisa la consola y verifica manualmente en la hoja.');
+    }
+}
+
+// ELIMINAR
 function showDeletePasswordModal(data) {
     const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
     const passwordInput = document.getElementById('password-input');
@@ -500,43 +496,39 @@ async function proceedWithDelete(data) {
     loadingModal.show();
 
     try {
-        const response = await deleteRowFromAppsScript(data[0]);
+        await deleteRowFromAppsScript(data[0]);
         loadingModal.hide();
-        if (response && response.success) {
-            alert('Paciente eliminado permanentemente.');
-            refreshData();
-        } else {
-            alert('Error al eliminar: ' + (response?.error || 'Desconocido'));
-        }
+        alert('Eliminación enviada exitosamente.\nVerifica en la hoja de cálculo.');
+        refreshData();
     } catch (error) {
         loadingModal.hide();
-        alert('Error de conexión: ' + error.message);
+        console.error(error);
+        alert('Hubo un problema al eliminar.\nRevisa la consola y verifica manualmente.');
     }
 }
 
-// FIX ACCESIBILIDAD - versión más fuerte
+// FIX ACCESIBILIDAD - versión reforzada para evitar warning aria-hidden
 document.querySelectorAll('.modal').forEach(modalEl => {
-    modalEl.addEventListener('hide.bs.modal', function (event) {
-        // 1. Quitar foco inmediato del elemento activo si está dentro
+    modalEl.addEventListener('hide.bs.modal', function () {
+        // Quitar foco del elemento activo si está dentro del modal
         const active = document.activeElement;
         if (active && modalEl.contains(active)) {
             active.blur();
         }
 
-        // 2. Forzar blur en elementos específicos (botones problemáticos)
-        const saveBtn = document.getElementById('save-edit-btn');
-        const confirmBtn = document.getElementById('confirm-password-btn');
-        if (saveBtn) saveBtn.blur();
-        if (confirmBtn) confirmBtn.blur();
+        // Forzar blur en botones problemáticos
+        ['save-edit-btn', 'confirm-password-btn'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.blur();
+        });
 
-        // 3. Mover foco a body o al trigger (evita que quede "flotando")
-        document.body.focus();  // o al botón que abrió el modal si lo tienes
+        // Mover foco fuera del modal (al body)
+        document.body.focus();
     });
 
-    // Opcional: al mostrar, enfocar primer input
+    // Al mostrar modal, enfocar primer elemento interactivo
     modalEl.addEventListener('shown.bs.modal', function () {
-        const firstInput = modalEl.querySelector('input, select, textarea, button');
-        if (firstInput) firstInput.focus();
+        const focusable = modalEl.querySelector('input:not([disabled]), select, textarea, button:not([disabled])');
+        if (focusable) focusable.focus();
     });
 });
-
