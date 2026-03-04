@@ -1,6 +1,6 @@
 // js/api.js
 //!!! REEMPLAZA ESTA URL CON LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT!!!
-const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwnPNGsTlZ9NL6cN7eS0KANECvpule0ccn328K8JMTbFhZDGGBhoZCDLZdZkngYyxbTcw/exec';
+const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyhit_aZN518HLmx4KAwQregMtC-OVx9Fz9PZohA13NAzPdjVBHSJ2mRfvD4T7HhGjFQQ/exec';
 
 async function fetchDataFromAppsScript() {
     try {
@@ -66,4 +66,5 @@ async function deleteRowFromAppsScript(id) {
     }
 
 }
+
 
